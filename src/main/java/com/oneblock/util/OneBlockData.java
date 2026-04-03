@@ -1,8 +1,7 @@
 package com.oneblock.util;
 
-import com.oneblock.phase.PhaseRegistry;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtIo;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.PersistentState;
@@ -15,15 +14,17 @@ public class OneBlockData extends PersistentState {
 
     private static final String DATA_ID = "oneblock_data";
 
-    // Map from BlockPos string -> blocks broken count
     private final Map<String, Long> blockCounters = new HashMap<>();
-    // Map from BlockPos string -> phase index at last announcement
     private final Map<String, Integer> lastAnnouncedPhase = new HashMap<>();
 
     public static OneBlockData get(MinecraftServer server) {
         PersistentStateManager manager = server.getWorld(World.OVERWORLD).getPersistentStateManager();
         return manager.getOrCreate(
-            new PersistentState.Type<>(OneBlockData::new, OneBlockData::fromNbt, null),
+            new PersistentState.Type<>(
+                OneBlockData::new,
+                (nbt, wrapperLookup) -> fromNbt(nbt),
+                null
+            ),
             DATA_ID
         );
     }
@@ -42,7 +43,7 @@ public class OneBlockData extends PersistentState {
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup wrapperLookup) {
         NbtCompound counters = new NbtCompound();
         blockCounters.forEach(counters::putLong);
         nbt.put("counters", counters);
