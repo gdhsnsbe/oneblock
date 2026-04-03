@@ -19,11 +19,11 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Grant Gradle permission
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Build mod
-        run: ./gradlew build
+        run: gradle build
 
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
@@ -31,4 +31,3 @@ jobs:
           name: oneblock-mod
           path: build/libs/oneblock-*.jar
           retention-days: 30
-        
